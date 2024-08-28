@@ -1,42 +1,67 @@
+using System;
+
 namespace Tennis
 {
     public class TennisGame3 : ITennisGame
     {
-        private int p2;
-        private int p1;
-        private string p1N;
-        private string p2N;
+        private int pointsWonPlayer1;
+        private int pointsWonPlayer2;
+        
+        private string player1Name;
+        private string player2Name;
+
+        
 
         public TennisGame3(string player1Name, string player2Name)
         {
-            this.p1N = player1Name;
-            this.p2N = player2Name;
+            this.player1Name = player1Name;
+            this.player2Name = player2Name;
         }
 
         public string GetScore()
         {
-            string s;
-            if ((p1 < 4 && p2 < 4) && (p1 + p2 < 6))
+            string winningPlayer = pointsWonPlayer1 > pointsWonPlayer2 ? player1Name : player2Name;
+            if (IsMatchOver())
+                return "Win for " + winningPlayer;
+            if (IsMatchInOvertime())
             {
-                string[] p = { "Love", "Fifteen", "Thirty", "Forty" };
-                s = p[p1];
-                return (p1 == p2) ? s + "-All" : s + "-" + p[p2];
-            }
-            else
-            {
-                if (p1 == p2)
+                if (isTie())
                     return "Deuce";
-                s = p1 > p2 ? p1N : p2N;
-                return ((p1 - p2) * (p1 - p2) == 1) ? "Advantage " + s : "Win for " + s;
-            }
+                else
+                    return "Advantage " + winningPlayer;
+            }  
+            return isTie() ? GetPointName(pointsWonPlayer1) + "-All" : GetPointName(pointsWonPlayer1) + "-" + GetPointName(pointsWonPlayer2);
+        }
+
+        private string GetPointName(int pointsScored)
+        {
+            string[] pointNames = { "Love", "Fifteen", "Thirty", "Forty" };
+            return pointNames[pointsScored];
+        }
+        private bool isTie()
+        {
+            return pointsWonPlayer1 == pointsWonPlayer2;
+        }
+
+        private bool IsLeadByOnePoint()
+        {
+            return (pointsWonPlayer1 - pointsWonPlayer2) * (pointsWonPlayer1 - pointsWonPlayer2) == 1;
+        }
+        private bool IsMatchOver()
+        {
+            return (pointsWonPlayer1 >= 4 || pointsWonPlayer2 >= 4) && !isTie() && !IsLeadByOnePoint();
+        }
+        private bool IsMatchInOvertime()
+        {
+            return pointsWonPlayer1 >= 3 && pointsWonPlayer2 >= 3 && (isTie() || IsLeadByOnePoint());
         }
 
         public void WonPoint(string playerName)
         {
             if (playerName == "player1")
-                this.p1 += 1;
+                this.pointsWonPlayer1 += 1;
             else
-                this.p2 += 1;
+                this.pointsWonPlayer2 += 1;
         }
 
     }
